@@ -1,0 +1,120 @@
+---
+title: "ds_mems"
+author: "dsmutin"
+date: "2023-03-31"
+output: html_document
+---
+0. Библиотеки
+```{r}
+liblist <- c("tidyverse", "gganimate")                                          #список библиотек
+
+for (i in 1:length(liblist)) {
+  if (!require(liblist[i], quietly = TRUE, character.only = T)) 
+    install.packages(liblist[i])                                                #установка недостающих библиотек
+  library(liblist[i], character.only = T)                                       #подгружение библиотек
+  
+  print(str_c("Package ", liblist[i], " run"))
+}
+
+rm (i, liblist)
+```
+
+Готовим пиццу
+```{r}
+тесто <- sapply(1:8, str_c, " кусок")
+тесто <- factor(тесто, ordered = F)
+
+pizza <- ggplot() +
+  geom_col(aes(x = тесто, y = 0.5), 
+           fill = "#fddbb6", width = 1, show.legend = F) +
+  coord_polar(start = 3) +
+  xlab("пицца") + ylab("тоже пицца") +
+  theme_light() + 
+  theme(panel.grid.major = element_line(linetype = 3),
+    panel.grid.minor = element_line(linetype = "blank"),
+    axis.text.x = element_text(size = 0))
+
+
+pizza <- pizza + 
+  geom_col (aes(x = rep(тесто,2), y = c(rep(0.5,8), rep(0.05,8)),
+                fill = c(rep(1,8), rep(2,8))), 
+            fill = c(rep("transparent", 8), rep("#f0cfab", 8)),
+            width = 1, position = "stack")
+
+pizza <- pizza + 
+  geom_jitter(aes(x = тесто, y = 0.15), color = "#ed764c", alpha = 0.8, height = 0.12, width = 0.1, size = 15, stroke = 2) +
+  geom_jitter(aes(x = тесто, y = 0.24), color = "#ed764c", alpha = 0.8, height = 0.09, width = 0.3, size = 15, stroke = 2) +
+  geom_jitter(aes(x = тесто, y = 0.40), color = "#ed764c", alpha = 0.8, height = 0.01, width = 0.4, size = 15, stroke = 2) +
+  geom_jitter(aes(x = тесто, y = 0.40), color = "#ed764c", alpha = 0.8, height = 0.01, width = 0.4, size = 15, stroke = 2)
+
+for (r in 1:5) 
+  pizza <- pizza +
+            geom_jitter(aes(x = тесто, y = 0.25), color = "darkred", 
+                         alpha = 0.9, height = 0.2, width = 0.4, size = 8, stroke = 2)
+
+for (r in 1:9) 
+  pizza <- pizza +
+            geom_jitter(aes(x = тесто, y = 0.25), color = "grey20", 
+                         alpha = 1, height = 0.23, width = 0.4, size = 1.5, stroke = 2, shape = 1)
+
+for (r in 1:30)
+    pizza <- pizza +
+            geom_jitter(aes(x = тесто, y = 0.25), color = "#676f0c", 
+                         alpha = 0.7, height = 0.23, width = 0.4, size = 3, stroke = 4, shape = "-")
+
+if ("не в духовке" == 1) {
+for (r in 1:70)
+    pizza <- pizza +
+            geom_jitter(aes(x = тесто, y = 0.25), color = "#f1ce9f", fill = "#fdf3e7",
+                         alpha = 0.4, height = 0.23, width = 0.4, size = 2, stroke = 1, shape = 22) +
+            geom_jitter(aes(x = тесто, y = 0.25), color = "#eaab66", fill = "#dfa05d",
+                         alpha = 0.4, height = 0.23, width = 0.4, size = 3, stroke = 1, shape = 23) }
+
+поставили_в_духовку <- Sys.time()
+for(r in 0) {
+  пора <- unclass(Sys.time()) - unclass(поставили_в_духовку)
+  print("Может уже пора?")
+  while (пора < 600) {
+    for (i in 1:10^9){
+      запекаем <- runif(100)
+    }
+    rm(запекаем,i)
+    print("А теперь?")
+    if (пора < 600) print("нет, не пора") 
+  }
+  print("Пора!")
+}
+
+for (r in 1:40)
+    pizza <- pizza +
+            geom_line (aes(x = 1:8, y = 0.25), color = "#eaab66",
+                       alpha = 0.5, linewidth = 2.0, linetype = 2, position = position_jitter(0.5, 0.25)) +
+            geom_line (aes(x = 1:8, y = 0.25), color = "#fdf3e7",
+                       alpha = 0.3, linewidth = 0.8, linetype = 2, position = position_jitter(0.5, 0.25)) +
+            geom_col (aes(x = rep(тесто,2), y = c(rep(0.5,8), rep(0.05,8)), fill = c(rep(1,8), rep(2,8))), 
+                      fill = c(rep("transparent", 8), rep("#e48d3e", 8)), width = 1, position = "stack")
+
+pizza <- pizza +
+  geom_col(aes (x = тесто, y = 0.55), width = 1, linewidth = 1, color = "white", fill = "transparent") +
+  theme(axis.text.x = element_text(size = 8), plot.background = element_rect(fill = "white"))
+
+pizza
+```
+
+
+```{r}
+вкусно <- sample(1:8, 8)
+съели <- rep("transparent", 8)
+fr <- 6
+for (i in 1:(9*fr-1)) {
+  if (i > fr) {
+  r <- вкусно[i%/%fr]
+  съели [r] <- "white" 
+  levels(тесто)[r] <- str_c("вкусно", str_c(rep(".", r), collapse = ""))
+  if(is.na(тесто[r])) print(str_c(i,r))}
+  pizza <- pizza + geom_col (aes(x = тесто, y = 0.55), fill = съели, width = 1)
+  #ggsave(plot = pizza, str_c(i,".png"))
+}
+
+pizza 
+```
